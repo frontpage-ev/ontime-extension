@@ -9,7 +9,8 @@ type DayOfWeek = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 's
 interface Timer {
   name: string;
   speaker: string;
-  start_time: string;
+  start_time: Date;
+  end_time: Date|null;
   notes: string;
 }
 
@@ -40,18 +41,23 @@ const schedule = ref<{
 })
 
 const getTimers = async () => {
-  const {data: {rundown}} = await axios.get('http://45.146.252.122:4001/events/cached')
-  const todayAtMidnight = (new Date()).setHours(0, 0, 0, 0) / 1000
+  const {data: {rundown}} = await axios.get('https://ontime.chrotos.net/events/cached')
 
   rundown.forEach((event: EventData) => {
     if (!event.isPublic) return
     if (event.title.includes('Break')) return
     if (event.title.includes('Pause')) return
     const day = event.user0.toLowerCase() as DayOfWeek
+
+    if (!schedule.value[day]) {
+      schedule.value[day] = []
+    }
+
     schedule.value[day].push({
       name: event.title,
       speaker: event.presenter,
-      start_time: new Date(todayAtMidnight + (event.timeStart + 1000)).toISOString(),
+      start_time: new Date(event.timeStart),
+      end_time: event.timeEnd ? new Date(event.timeEnd) : null,
       notes: event.note,
     })
   })
@@ -61,7 +67,7 @@ const getTimers = async () => {
   keys.forEach(key => {
     schedule.value[key].sort((a, b) => {
       if (a.start_time && b.start_time) {
-        return new Date(a.start_time).getTime() - new Date(b.start_time).getTime()
+        return a.start_time.getTime() - b.start_time.getTime()
       }
       return 0
     })
@@ -70,11 +76,14 @@ const getTimers = async () => {
   console.log({schedule: schedule.value})
 }
 
-const date = (timer: Timer) => {
-  if (timer.start_time) {
+const date = (timer: Timer, last: boolean) => {
+  if (timer.start_time && (!last || !timer.end_time)) {
     // HH:MM
-    return new Date(timer.start_time)
-        .toLocaleTimeString('de-DE', {hour: '2-digit', minute: '2-digit'})
+    return timer.start_time.toLocaleTimeString('de-DE', {hour: '2-digit', minute: '2-digit', timeZone: 'UTC'})
+  }
+
+  if (timer.end_time) {
+    return timer.end_time.toLocaleTimeString('de-DE', {hour: '2-digit', minute: '2-digit', timeZone: 'UTC'})
   }
 
   return 'TBA'
@@ -96,9 +105,8 @@ useContext((context, changed) => {
 })
 
 const handler = () => {
-  if (values.value === null) return
-  const days = (Object.keys(values.value.days) as DayOfWeek[])
-      .filter(day => values.value?.days[day])
+  const days = (Object.keys(schedule.value) as DayOfWeek[])
+      .filter(day => schedule.value[day].length > 0)
 
   if (selected.value === null) {
     selected.value = days[0]
@@ -109,8 +117,9 @@ const handler = () => {
   selected.value = days[(index + 1) % days.length]
 }
 
-useInitial(values, () => {
-  getTimers()
+useInitial(schedule, async () => {
+  await getTimers()
+  handler()
   setInterval(handler, 5000)
 })
 </script>
@@ -140,11 +149,11 @@ useInitial(values, () => {
               <div class="bg-ice text-black rounded-xl p-4" :style="{ 'transition-delay': `${i * 0.05}s` }">
                 <div class="flex justify-between gap-4">
                   <div class="text-xl">
-                    <div class="text-2xl">{{ timer.name }}</div>
-                    <div class="text-black/50 ">{{ timer.speaker }}</div>
+                    <div class="text-4xl">{{ timer.name }}</div>
+                    <div class="text-black/50 text-2xl ">{{ timer.speaker }}</div>
                   </div>
-                  <div class="text-2xl text-right">
-                    <div>{{ date(timer) }}</div>
+                  <div class="text-4xl text-right">
+                    <div>{{ date(timer, i >= schedule[selected].length - 1) }}</div>
                     <div class="text-black/30">CEST</div>
                   </div>
                 </div>

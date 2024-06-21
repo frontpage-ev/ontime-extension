@@ -6,4 +6,5 @@ export function useInitial(_ref: Ref, handler: () => void) {
         if (!initial.value) handler()
         initial.value = true
     })
+    handler()
 }

@@ -192,6 +192,10 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
+"@own3d/ext-types@github:own3d/ext-types":
+  version "1.1.4"
+  resolved "https://codeload.github.com/own3d/ext-types/tar.gz/b7ce04e7c550d4ce9efe1d67a024ef8e83a79dd9"
+
 "@pkgjs/parseargs@^0.11.0":
   version "0.11.0"
   resolved "https://registry.yarnpkg.com/@pkgjs/parseargs/-/parseargs-0.11.0.tgz#a77ea742fab25775145434eb1d2328cf5013ac33"
