@@ -1,0 +1,28 @@
+# https://dev.own3d.tv/docs/extensions/manifest-configuration.html
+schema_version: 1
+id: 9ba46658-8256-4c88-a7ae-83daf8a97c20
+name: Ontime Schedule
+version: 1.0.0
+description: Schedule Viewer for Onetime. Ontime is an application for creating and managing event rundowns and timers.
+summary: Schedule Viewer for Onetime. Ontime is an application for creating and managing event rundowns and timers.
+store_presence:
+  category: tools
+  images:
+    logo: store-presence/logo.png
+    discovery: store-presence/discovery.png
+  screenshots:
+    - store-presence/screenshot1.png
+    - store-presence/screenshot2.png
+  keywords:
+    - ontime
+    - schedule
+compatibilities:
+  widget:
+    path: config.html
+author:
+  name: frontpage e.V
+  email: management@frontpage.gg
+publisher:
+  name: frontpage e.V
+support:
+  email: management@frontpage.gg
