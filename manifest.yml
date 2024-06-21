@@ -16,6 +16,15 @@ store_presence:
   keywords:
     - ontime
     - schedule
+acl:
+  developers:
+    - id: 1
+      role: owner
+    - id: 164089
+      role: developer
+  testers:
+    - id: 1
+    - id: 164089
 compatibilities:
   widget:
     path: config.html
